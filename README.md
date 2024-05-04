@@ -12,7 +12,7 @@ Also, using and changing the code of the netNORM, which is a sub code of the ful
   https://github.com/basiralab/netNorm-PY/tree/master <br>
 We want to try out different data sets with the given working code. <br>
 <br>
-The first data set we used is coming from a cancer data set - <br>
+The experimental data set we used is coming from a cancer data set - <br>
 https://www.cancerimagingarchive.net/browse-collections/
 
 We took one of the data sets - it containts of 687 images of blood cancer type - Acute Myeloid Leukemia - it contains of 1 subject, from 5 studies and 15 series of images from different angles per each study.

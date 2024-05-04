@@ -12,6 +12,15 @@ Also, using and changing the code of the netNORM, which is a sub code of the ful
   https://github.com/basiralab/netNorm-PY/tree/master <br>
 We want to try out different data sets with the given working code. <br>
 <br>
+The first data set we used is coming from a cancer data set - <br>
+https://www.cancerimagingarchive.net/browse-collections/
+
+We took one of the data sets - it containts of 687 images of blood cancer type - Acute Myeloid Leukemia - 
+<br> The Cancer Moonshot Biobank is a National Cancer Institute initiative to support current and future investigations into drug resistance and sensitivity and other NCI-sponsored cancer research initiatives, with an aim of improving researchers' understanding of cancer and how to intervene in cancer initiation and progression. During the course of this study, biospecimens (blood and tissue removed during medical procedures) and associated data will be collected longitudinally from at least 1000 patients across at least 10 cancer types, who represent the demographic diversity of the U.S. and receiving standard of care cancer treatment at multiple NCI Community Oncology Research Program (NCORP) sites.
+
+This collection contains de-identified radiology and histopathology imaging procured from subjects in NCI’s Cancer Moonshot Biobank - Acute Myeloid Leukemia Cancer (CMB-AML) cohort. Associated genomic, phenotypic and clinical data will be hosted by The Database of Genotypes and Phenotypes (dbGaP) and other NCI databases.  A summary of Cancer Moonshot Biobank imaging efforts can be found on the Cancer Moonshot Biobank Imaging page.
+<br>https://www.cancerimagingarchive.net/collection/cmb-aml/
+<br>
 <br>
 <br>
 

@@ -215,16 +215,13 @@ def netNorm(v, nbr_of_sub, nbr_of_regions):
     fused_network = np.array(fused_network)
     return fused_network
 
-dicom_folder = 'manifest'
+dicom_folder = '/content/drive/My Drive/gGAN_project/data_output'
 dicom_files = [os.path.join(dicom_folder, f) for f in os.listdir(dicom_folder) if f.endswith('.dcm')]
 
-nbr_of_sub = 100 #int(input('Please select the number of subjects: '))
-nbr_of_regions = 35 #int(input('Please select the number of regions: '))
-nbr_of_views= 10 #int(input('Please select the number of views: '))
+nbr_of_sub = int(input('Please select the number of subjects: '))
+nbr_of_regions = int(input('Please select the number of regions: '))
+nbr_of_views= int(input('Please select the number of views: '))
 
-#v = np.random.rand(nbr_of_views, nbr_of_sub,nbr_of_regions, nbr_of_regions)
-#A = netNorm(v, nbr_of_sub, nbr_of_regions)
-# print(A)
 
 # Initialize the matrix
 v = np.zeros((nbr_of_views, nbr_of_sub, nbr_of_regions, nbr_of_regions))
@@ -243,12 +240,18 @@ mx = A.max()
 mn = A.min()
 print(mx)
 print(mn)
-plt.pcolor(A, vmin=mn, vmax=mx)
-plt.imshow(A)
-plt.show()
 
-output_directory = '/content/drive/My Drive/gGAN/'  # Change to '/content/' if not using Drive
+plt.figure(figsize=(10, 8))  # Optional: Define a figure size if needed
+plt.pcolor(A, vmin=mn, vmax=mx, cmap='viridis')  # Using a colormap for better visibility
+plt.colorbar()  # Optional: Add a colorbar to the plot
+plt.axis('off')  # Turn off axis labels and ticks
+
+# Save the figure before showing it
+output_directory = '/content/drive/My Drive/gGAN_project/data_output/'  # Ensure this directory exists or is created
 if not os.path.exists(output_directory):
     os.makedirs(output_directory)
 file_path = os.path.join(output_directory, 'ourData_netNorm.png')
 plt.savefig(file_path, format='png', bbox_inches='tight', pad_inches=0)
+
+# After saving, you can display the plot
+plt.show()

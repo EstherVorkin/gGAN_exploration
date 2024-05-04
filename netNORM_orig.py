@@ -1,4 +1,3 @@
-
 """Main function of netNorm for the paper: Estimation of Connectional Brain Templates using Selective Multi
 View Network Normalization
     Details can be found in:
@@ -27,6 +26,7 @@ View Network Normalization
 
 import numpy as np
 import snf
+import os
 from sklearn import preprocessing
 import matplotlib.pyplot as plt
 
@@ -82,10 +82,20 @@ def netNorm(v, nbr_of_sub, nbr_of_regions):
                 else:
                     distance_vector = np.concatenate((distance_vector, np.sqrt(distance_euclidienne_sub_j_sub_k)), axis=0)
 
-            if i ==0:
-                distance_vector_final = distance_vector
-            else:
-                distance_vector_final = np.concatenate((distance_vector_final, distance_vector), axis=1)
+            print("Distance Vector Shape:", distance_vector.shape)
+            print("Distance Vector Final Shape:", distance_vector_final.shape)
+
+            # Ensure both arrays are 2D
+            distance_vector_final = np.atleast_2d(distance_vector_final)
+            distance_vector = np.atleast_2d(distance_vector)
+            # Ensure both arrays are 2D
+            distance_vector = np.atleast_2d(distance_vector)
+            if distance_vector_final.shape[0] != distance_vector.shape[0]:
+                # Expand distance_vector_final to match the number of rows in distance_vector
+                distance_vector_final = np.tile(distance_vector_final, (distance_vector.shape[0], 1))
+
+            # Now concatenate along axis=1
+            distance_vector_final = np.concatenate((distance_vector_final, distance_vector), axis=1)
 
         # print(theta)
         return distance_vector_final
@@ -194,12 +204,26 @@ nbr_of_views= int(input('Please select the number of views: '))
 
 v = np.random.rand(nbr_of_views, nbr_of_sub,nbr_of_regions, nbr_of_regions)
 A = netNorm(v, nbr_of_sub, nbr_of_regions)
-# print(A)
+
 
 mx = A.max()
 mn = A.min()
 print(mx)
 print(mn)
-plt.pcolor(A, vmin=mn, vmax=mx)
-plt.imshow(A)
+
+# Corrected Plotting and Saving Code
+plt.figure(figsize=(10, 8))  # Optional: Define a figure size if needed
+plt.pcolor(A, vmin=mn, vmax=mx, cmap='viridis')  # Using a colormap for better visibility
+plt.colorbar()  # Optional: Add a colorbar to the plot
+plt.axis('off')  # Turn off axis labels and ticks
+
+# Save the figure before showing it
+output_directory = '/content/drive/My Drive/gGAN_project/data_output/'  # Ensure this directory exists or is created
+if not os.path.exists(output_directory):
+    os.makedirs(output_directory)
+file_path = os.path.join(output_directory, 'ourData_netNorm.png')
+plt.savefig(file_path, format='png', bbox_inches='tight', pad_inches=0)
+
+# After saving, you can display the plot
 plt.show()
+

@@ -157,32 +157,39 @@ def demo():
                 file_path = os.path.join(output_directory, 'ourData_img' + str(fold) + str(j) + str(i) + '.png')
                 plt.savefig(file_path, format='png', bbox_inches='tight', pad_inches=0)
 
-    def plot_MAE(prediction, data_next, test, i):
-        if i >= prediction.shape[0]:
-            print(f"Warning: prediction index {i} is out of bounds for prediction with size {prediction.shape[0]}")
-            return
-        if any(t >= data_next.shape[0] for t in test):
-            print("Warning: Test index is out of bounds for data_next")
-            return
-
-        # mae calculation
+    def plot_MAE(prediction, data_next, test, fold):
         MAE = np.zeros((9), dtype=np.double)
+        # Ensure we only use valid test indices that are within the bounds of data_next
+        valid_indices = test[test < len(data_next)]
+
         for i in range(9):
-            MAE_i = abs(prediction[i, :, :] - data_next[test])
-            MAE[i] = np.mean(MAE_i)
+            print(f"Prediction slice shape for k={i+2}: {prediction[i, :len(valid_indices), :].shape}")
+            print(f"Data next valid shape: {data_next[valid_indices].shape}")
+
+            if len(valid_indices) > 0:
+                # Only use the slice of predictions that matches the number of valid indices
+                prediction_valid = prediction[i, :len(valid_indices), :]
+                MAE_i = np.abs(prediction_valid - data_next[valid_indices])
+                MAE[i] = np.mean(MAE_i)
+            else:
+                MAE[i] = np.nan  # Handle cases where no valid indices are available
 
         plt.clf()
         k = ['k=2', 'k=3', 'k=4', 'k=5', 'k=6', 'k=7', 'k=8', 'k=9', 'k=10']
         sns.set(style="whitegrid")
         df = pd.DataFrame(dict(x=k, y=MAE))
         ax = sns.barplot(x="x", y="y", data=df)
-        min_val = MAE.min() - 0.01
-        max_val = MAE.max() + 0.01
+        min_val = np.nanmin(MAE) - 0.01 if not np.isnan(np.nanmin(MAE)) else 0
+        max_val = np.nanmax(MAE) + 0.01 if not np.isnan(np.nanmax(MAE)) else 1
         ax.set(ylim=(min_val, max_val))
+
+
+
+        #plt.savefig('./plot/mae' + str(fold) + '.png')
         output_directory = '/content/drive/My Drive/gGAN_project/dataset_1/'  
         if not os.path.exists(output_directory):
             os.makedirs(output_directory)
-        file_path = os.path.join(output_directory, 'ourData_mae' + str(i) + '.png')
+        file_path = os.path.join(output_directory, 'orig_mae_img' + str(fold) + '.png')
         plt.savefig(file_path, format='png', bbox_inches='tight', pad_inches=0)
 
 
@@ -359,6 +366,6 @@ def demo():
         i = i + 1
 
         predicted = make_sym_matrix(nbr_of_regions, predicted_flat)
-        plot_predictions(predicted, i - 1)
+        #plot_predictions(predicted, i - 1)
 
 demo()

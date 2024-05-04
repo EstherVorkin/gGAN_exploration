@@ -133,39 +133,46 @@ def netNorm(v, nbr_of_sub, nbr_of_regions):
                 else:
                     distance_vector = np.concatenate((distance_vector, np.sqrt(distance_euclidienne_sub_j_sub_k)), axis=0)
 
-            distance_vector = np.reshape(distance_vector, (nbr_of_sub, 1))
-            if i == 0:
-                distance_vector_final = distance_vector
-            else:
-                distance_vector_final = np.concatenate((distance_vector_final, distance_vector), axis=1)
+            print("Distance Vector Shape:", distance_vector.shape)
+            print("Distance Vector Final Shape:", distance_vector_final.shape)
+
+            # Ensure both arrays are 2D
+            distance_vector_final = np.atleast_2d(distance_vector_final)
+            distance_vector = np.atleast_2d(distance_vector)
+            # Ensure both arrays are 2D
+            distance_vector = np.atleast_2d(distance_vector)
+            if distance_vector_final.shape[0] != distance_vector.shape[0]:
+                # Expand distance_vector_final to match the number of rows in distance_vector
+                distance_vector_final = np.tile(distance_vector_final, (distance_vector.shape[0], 1))
+
+            # Now concatenate along axis=1
+            distance_vector_final = np.concatenate((distance_vector_final, distance_vector), axis=1)
 
         print(theta)
         return distance_vector_final
 
 
     def minimum_distances(distance_vector_final):
-        x = distance_vector_final
+        if distance_vector_final.ndim == 1:
+            distance_vector_final = distance_vector_final.reshape(1, -1)  # Ensure it is at least 2D
+
+        nbr_of_sub = distance_vector_final.shape[0]
+        nbr_of_feat = distance_vector_final.shape[1]
 
         for i in range(nbr_of_feat):
-            minimum_sub = x[0, i:i+1]
-            minimum_sub = float(minimum_sub)
+            minimum_sub = distance_vector_final[0, i]
             general_minimum = 0
-            general_minimum = np.array(general_minimum)
             for k in range(1, nbr_of_sub):
-                local_sub = x[k:k+1, i:i+1]
-                local_sub = float(local_sub)
+                local_sub = distance_vector_final[k, i]
                 if local_sub < minimum_sub:
                     general_minimum = k
-                    general_minimum = np.array(general_minimum)
                     minimum_sub = local_sub
             if i == 0:
-                final_general_minimum = np.array(general_minimum)
+                final_general_minimum = np.array([general_minimum])
             else:
                 final_general_minimum = np.vstack((final_general_minimum, general_minimum))
 
-        final_general_minimum = np.transpose(final_general_minimum)
-
-        return final_general_minimum
+        return final_general_minimum.T  # Transpose to ensure proper shape
 
     def new_tensor(final_general_minimum, All_subj):
         y = All_subj
@@ -257,7 +264,12 @@ def gGAN(data, nbr_of_regions, nbr_of_epochs, nbr_of_folds, hyper_param1, CBT):
         plt.legend(['G Loss', 'D Loss'])
         plt.xlabel('Epoch')
         plt.ylabel('Loss')
-        plt.savefig('./plot/loss' + str(epoch) + '.png')
+        #plt.savefig('./plot/loss' + str(epoch) + '.png')
+        output_directory = '/content/drive/My Drive/gGAN_project/orig_data/'  
+        if not os.path.exists(output_directory):
+            os.makedirs(output_directory)
+        file_path = os.path.join(output_directory, 'orig_Data_loss' + str(epoch) + '.png')
+        plt.savefig(file_path, format='png', bbox_inches='tight', pad_inches=0)
 
     # -------------------------------------------------------------
 

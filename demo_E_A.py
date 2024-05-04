@@ -23,7 +23,6 @@ import pandas as pd
 import seaborn as sns
 import random
 from gGAN import gGAN, netNorm
-import pydicom
 
 torch.cuda.empty_cache()
 torch.cuda.empty_cache()
@@ -91,27 +90,7 @@ def demo():
         return dataset
 
     #####################################################################################################
-    def load_dicom_image(dicom_path):
-        """Load DICOM image and return its pixel data as a numpy array."""
-        dicom = pydicom.dcmread(dicom_path)
-        image = dicom.pixel_array.astype(float)
-        image -= np.min(image)
-        image /= np.max(image)  # Normalize to [0, 1]
-        return image
 
-    def image_to_graph(image, num_regions):
-        """Convert an image to a graph. Here, this function needs to be defined based on your use case.
-        For demonstration, let's assume it returns a matrix num_regions x num_regions with random connectivity."""
-        graph = np.random.rand(num_regions, num_regions)
-        graph = (graph + graph.T) / 2  # Make it symmetric
-        return graph
-
-    def prepare_data_from_dicom(dicom_folder, num_subjects, num_regions):
-        dicom_files = [os.path.join(dicom_folder, f) for f in os.listdir(dicom_folder) if f.endswith('.dcm')]
-        dicom_files = dicom_files[:num_subjects]  # Limit the number of subjects to num_subjects
-        data = np.array([image_to_graph(load_dicom_image(f), num_regions) for f in dicom_files])
-        return data
-    
     def linear_features(data):
         n_roi = data[0].shape[0]
         n_sub = data.shape[0]
@@ -151,10 +130,10 @@ def demo():
                     plt.colorbar()
                 plt.imshow(predicted_sub)
                 #plt.savefig('./plot/img' + str(fold) + str(j) + str(i) + '.png')
-                output_directory = '/content/drive/My Drive/gGAN_project/dataset_1/'  
+                output_directory = '/content/drive/My Drive/gGAN_project/orig_output/'  
                 if not os.path.exists(output_directory):
                     os.makedirs(output_directory)
-                file_path = os.path.join(output_directory, 'ourData_img' + str(fold) + str(j) + str(i) + '.png')
+                file_path = os.path.join(output_directory, 'orig_Data_img' + str(fold) + str(j) + str(i) + '.png')
                 plt.savefig(file_path, format='png', bbox_inches='tight', pad_inches=0)
 
     def plot_MAE(prediction, data_next, test, fold):
@@ -182,16 +161,13 @@ def demo():
         min_val = np.nanmin(MAE) - 0.01 if not np.isnan(np.nanmin(MAE)) else 0
         max_val = np.nanmax(MAE) + 0.01 if not np.isnan(np.nanmax(MAE)) else 1
         ax.set(ylim=(min_val, max_val))
-
-
-
+        
         #plt.savefig('./plot/mae' + str(fold) + '.png')
-        output_directory = '/content/drive/My Drive/gGAN_project/dataset_1/'  
+        output_directory = '/content/drive/My Drive/gGAN_project/orig_data/'  
         if not os.path.exists(output_directory):
             os.makedirs(output_directory)
         file_path = os.path.join(output_directory, 'orig_mae_img' + str(fold) + '.png')
         plt.savefig(file_path, format='png', bbox_inches='tight', pad_inches=0)
-
 
     ######################################################################################################################################
 
@@ -315,13 +291,12 @@ def demo():
     hyper_param1 = 100
     nbr_of_feat = int((np.square(nbr_of_regions) - nbr_of_regions) / 2)
 
-    dicom_folder = '/content/drive/My Drive/gGAN_project/data_output'
-
-    data = prepare_data_from_dicom(dicom_folder, nbr_of_sub, nbr_of_regions)
-    data = np.abs(data)  # Ensure all values are positive, might depend on your preprocessing
-    independent_data = data[:nbr_of_sub_for_cbt]
-    data_next = data[nbr_of_sub_for_cbt:100]
-
+    data = np.random.normal(0.6, 0.3, (nbr_of_sub, nbr_of_regions, nbr_of_regions))
+    data = np.abs(data)
+    independent_data = np.random.normal(0.6, 0.3, (nbr_of_sub_for_cbt, nbr_of_regions, nbr_of_regions))
+    independent_data = np.abs(independent_data)
+    data_next = np.random.normal(0.4, 0.3, (nbr_of_sub, nbr_of_regions, nbr_of_regions))
+    data_next = np.abs(data_next)
     CBT = netNorm(independent_data, nbr_of_sub_for_cbt, nbr_of_regions)
     gGAN(data, nbr_of_regions, nbr_of_epochs, nbr_of_folds, hyper_param1, CBT)
 
@@ -339,7 +314,7 @@ def demo():
     for train, test in kfold.split(source_data):
         adversarial_loss = torch.nn.BCELoss()
         l1_loss = torch.nn.L1Loss()
-        trained_model_gen = torch.load('./updated_weight_' + str(i) + 'generator_.model')
+        trained_model_gen = torch.load('./weight_' + str(i) + 'generator_.model')
         generator = Generator()
         generator.load_state_dict(trained_model_gen)
 
@@ -366,6 +341,6 @@ def demo():
         i = i + 1
 
         predicted = make_sym_matrix(nbr_of_regions, predicted_flat)
-        #plot_predictions(predicted, i - 1)
+        plot_predictions(predicted, i - 1)
 
 demo()

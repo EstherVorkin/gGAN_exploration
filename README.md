@@ -7,19 +7,19 @@ Submission by:
   - Anushka Deshpande
 
 In this project, we are taking the gGAN project from the following github: <br>
-  https://github.com/basiralab/gGAN?tab=readme-ov-file /n
-Also, using and changing the code of the netNORM, which is a sub code of the full code of gGAN. This is taken from the following github: /n 
-  https://github.com/basiralab/netNorm-PY/tree/master /n
-We want to try out different data sets with the given working code. /n
-
-
-
+  https://github.com/basiralab/gGAN?tab=readme-ov-file <br>
+Also, using and changing the code of the netNORM, which is a sub code of the full code of gGAN. This is taken from the following github: <br>
+  https://github.com/basiralab/netNorm-PY/tree/master <br>
+We want to try out different data sets with the given working code. <br>
+<br>
+<br>
+<br>
 -----------------------------------------
-#Citations
-@article{gurler2020, title={ Foreseeing Brain Graph Evolution Over Time Using Deep Adversarial Network Normalizer},
-author={Gurler Zeynep, Nebli Ahmed, Rekik Islem},
-journal={Predictive Intelligence in Medicine International Society and Conference Series on Medical Image Computing and Computer-Assisted Intervention}, volume={},
-pages={},
-year={2020},
+#Citations <br>
+@article{gurler2020, title={ Foreseeing Brain Graph Evolution Over Time Using Deep Adversarial Network Normalizer},<br>
+author={Gurler Zeynep, Nebli Ahmed, Rekik Islem},<br>
+journal={Predictive Intelligence in Medicine International Society and Conference Series on Medical Image Computing and Computer-Assisted Intervention}, volume={},<br>
+pages={},<br>
+year={2020},<br>
 publisher={Springer}
 }

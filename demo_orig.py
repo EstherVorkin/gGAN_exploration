@@ -129,7 +129,12 @@ def demo():
                 if(j == 0 and i == 0):
                     plt.colorbar()
                 plt.imshow(predicted_sub)
-                plt.savefig('./plot/img' + str(fold) + str(j) + str(i) + '.png')
+                #plt.savefig('./plot/img' + str(fold) + str(j) + str(i) + '.png')
+                output_directory = '/content/drive/My Drive/gGAN_project/orig_output/'  
+                if not os.path.exists(output_directory):
+                    os.makedirs(output_directory)
+                file_path = os.path.join(output_directory, 'orig_Data_img' + str(fold) + str(j) + str(i) + '.png')
+                plt.savefig(file_path, format='png', bbox_inches='tight', pad_inches=0)
 
     def plot_MAE(prediction, data_next, test, fold):
         # mae
@@ -148,7 +153,12 @@ def demo():
         min = MAE.min() - 0.01
         max = MAE.max() + 0.01
         ax.set(ylim=(min, max))
-        plt.savefig('./plot/mae' + str(fold) + '.png')
+        #plt.savefig('./plot/mae' + str(fold) + '.png')
+        output_directory = '/content/drive/My Drive/gGAN_project/orig_data/'  
+        if not os.path.exists(output_directory):
+            os.makedirs(output_directory)
+        file_path = os.path.join(output_directory, 'orig_mae_img' + str(fold) + '.png')
+        plt.savefig(file_path, format='png', bbox_inches='tight', pad_inches=0)
 
     ######################################################################################################################################
 
@@ -325,3 +335,4 @@ def demo():
         plot_predictions(predicted, i - 1)
 
 demo()
+

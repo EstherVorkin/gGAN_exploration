@@ -23,6 +23,7 @@ import pandas as pd
 import seaborn as sns
 import random
 from gGAN import gGAN, netNorm
+import pydicom
 
 torch.cuda.empty_cache()
 torch.cuda.empty_cache()
@@ -150,7 +151,7 @@ def demo():
                     plt.colorbar()
                 plt.imshow(predicted_sub)
                 #plt.savefig('./plot/img' + str(fold) + str(j) + str(i) + '.png')
-                output_directory = '/content/drive/My Drive/gGAN/test_data/'  
+                output_directory = '/content/drive/My Drive/gGAN_project/dataset_1/'  
                 if not os.path.exists(output_directory):
                     os.makedirs(output_directory)
                 file_path = os.path.join(output_directory, 'ourData_img' + str(fold) + str(j) + str(i) + '.png')
@@ -174,7 +175,7 @@ def demo():
         max = MAE.max() + 0.01
         ax.set(ylim=(min, max))
         #plt.savefig('./plot/mae' + str(fold) + '.png')
-        output_directory = '/content/drive/My Drive/gGAN/test_data/'  
+        output_directory = '/content/drive/My Drive/gGAN_project/dataset_1/'  
         if not os.path.exists(output_directory):
             os.makedirs(output_directory)
         file_path = os.path.join(output_directory, 'ourData_mae' + str(fold) + '.png')
@@ -295,26 +296,19 @@ def demo():
     if nbr_of_sub < 5:
         print("You can not give less than 5 to the number of subjects. ")
         nbr_of_sub = int(input('Please select the number of subjects: '))
-    #nbr_of_sub_for_cbt = int(input('Please select the number of subjects to generate the CBT: '))
+    nbr_of_sub_for_cbt = int(input('Please select the number of subjects to generate the CBT: '))
     nbr_of_regions = int(input('Please select the number of regions: '))
     nbr_of_epochs = int(input('Please select the number of epochs: '))
     nbr_of_folds = int(input('Please select the number of folds: '))
     hyper_param1 = 100
     nbr_of_feat = int((np.square(nbr_of_regions) - nbr_of_regions) / 2)
 
-    #data = np.random.normal(0.6, 0.3, (nbr_of_sub, nbr_of_regions, nbr_of_regions))
-    #data = np.abs(data)
-    #independent_data = np.random.normal(0.6, 0.3, (nbr_of_sub_for_cbt, nbr_of_regions, nbr_of_regions))
-    #independent_data = np.abs(independent_data)
-    #data_next = np.random.normal(0.4, 0.3, (nbr_of_sub, nbr_of_regions, nbr_of_regions))
-    #data_next = np.abs(data_next)
-
-    dicom_folder = '../netNorm-PY/manifest/'
+    dicom_folder = '/content/drive/My Drive/gGAN_project/data_output'
 
     data = prepare_data_from_dicom(dicom_folder, nbr_of_sub, nbr_of_regions)
     data = np.abs(data)  # Ensure all values are positive, might depend on your preprocessing
-    independent_data = data[:20]
-    data_next = data[21:100]
+    independent_data = data[:nbr_of_sub_for_cbt]
+    data_next = data[nbr_of_sub_for_cbt:100]
 
     CBT = netNorm(independent_data, nbr_of_sub_for_cbt, nbr_of_regions)
     gGAN(data, nbr_of_regions, nbr_of_epochs, nbr_of_folds, hyper_param1, CBT)
@@ -333,7 +327,7 @@ def demo():
     for train, test in kfold.split(source_data):
         adversarial_loss = torch.nn.BCELoss()
         l1_loss = torch.nn.L1Loss()
-        trained_model_gen = torch.load('./weight_' + str(i) + 'generator_.model')
+        trained_model_gen = torch.load('./updated_weight_' + str(i) + 'generator_.model')
         generator = Generator()
         generator.load_state_dict(trained_model_gen)
 
@@ -363,4 +357,3 @@ def demo():
         plot_predictions(predicted, i - 1)
 
 demo()
-

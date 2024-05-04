@@ -157,8 +157,15 @@ def demo():
                 file_path = os.path.join(output_directory, 'ourData_img' + str(fold) + str(j) + str(i) + '.png')
                 plt.savefig(file_path, format='png', bbox_inches='tight', pad_inches=0)
 
-    def plot_MAE(prediction, data_next, test, fold):
-        # mae
+    def plot_MAE(prediction, data_next, test, i):
+        if i >= prediction.shape[0]:
+            print(f"Warning: prediction index {i} is out of bounds for prediction with size {prediction.shape[0]}")
+            return
+        if any(t >= data_next.shape[0] for t in test):
+            print("Warning: Test index is out of bounds for data_next")
+            return
+
+        # mae calculation
         MAE = np.zeros((9), dtype=np.double)
         for i in range(9):
             MAE_i = abs(prediction[i, :, :] - data_next[test])
@@ -167,19 +174,17 @@ def demo():
         plt.clf()
         k = ['k=2', 'k=3', 'k=4', 'k=5', 'k=6', 'k=7', 'k=8', 'k=9', 'k=10']
         sns.set(style="whitegrid")
-
         df = pd.DataFrame(dict(x=k, y=MAE))
-        # total = sns.load_dataset('tips')
         ax = sns.barplot(x="x", y="y", data=df)
-        min = MAE.min() - 0.01
-        max = MAE.max() + 0.01
-        ax.set(ylim=(min, max))
-        #plt.savefig('./plot/mae' + str(fold) + '.png')
+        min_val = MAE.min() - 0.01
+        max_val = MAE.max() + 0.01
+        ax.set(ylim=(min_val, max_val))
         output_directory = '/content/drive/My Drive/gGAN_project/dataset_1/'  
         if not os.path.exists(output_directory):
             os.makedirs(output_directory)
-        file_path = os.path.join(output_directory, 'ourData_mae' + str(fold) + '.png')
+        file_path = os.path.join(output_directory, 'ourData_mae' + str(i) + '.png')
         plt.savefig(file_path, format='png', bbox_inches='tight', pad_inches=0)
+
 
     ######################################################################################################################################
 

@@ -223,8 +223,6 @@ def netNorm(v, nbr_of_sub, nbr_of_regions):
 
     def re_make_tensor(final_new_tensor, nbr_of_regions):
         x = final_new_tensor
-        #x = np.reshape(x, (nbr_of_views, nbr_of_feat))
-
         x = make_sym_matrix(nbr_of_regions, x)
         x = np.reshape(x, (1, nbr_of_regions, nbr_of_regions))
 
@@ -289,7 +287,7 @@ def gGAN(data, nbr_of_regions, nbr_of_epochs, nbr_of_folds, hyper_param1, CBT):
         plt.xlabel('Epoch')
         plt.ylabel('Loss')
         #plt.savefig('./plot/loss' + str(epoch) + '.png')
-        output_directory = '/content/drive/My Drive/gGAN/test_data/'  
+        output_directory = '/content/drive/My Drive/gGAN_project/dataset_1/'  
         if not os.path.exists(output_directory):
             os.makedirs(output_directory)
         file_path = os.path.join(output_directory, 'ourData_loss' + str(epoch) + '.png')
@@ -446,8 +444,8 @@ def gGAN(data, nbr_of_regions, nbr_of_epochs, nbr_of_folds, hyper_param1, CBT):
                 plot_loss_g[epoch] = losses_generator.detach().cpu().clone().numpy()
                 plot_loss_d[epoch] = losses_discriminator.detach().cpu().clone().numpy()
 
-                torch.save(generator.state_dict(), "./weight_" + str(n_fold_counter) + "generator" + "_" + ".model")
-                torch.save(discriminator1.state_dict(), "./weight_" + str(n_fold_counter) + "dicriminator" + "_" + ".model")
+                torch.save(generator.state_dict(), "./updated_weight_" + str(n_fold_counter) + "generator" + "_" + ".model")
+                torch.save(discriminator1.state_dict(), "./updated_weight_" + str(n_fold_counter) + "dicriminator" + "_" + ".model")
 
         interval = range(0, nbr_of_epochs)
         plotting_loss(plot_loss_g, plot_loss_d, interval)
@@ -460,24 +458,18 @@ nbr_of_sub = int(input('Please select the number of subjects: '))
 if nbr_of_sub < 5:
     print("You can not give less than 5 to the number of subjects. ")
     nbr_of_sub = int(input('Please select the number of subjects: '))
-#nbr_of_sub_for_cbt = int(input('Please select the number of subjects to generate the CBT: '))
+nbr_of_sub_for_cbt = int(input('Please select the number of subjects to generate the CBT: '))
 nbr_of_regions = int(input('Please select the number of regions: '))
 nbr_of_epochs = int(input('Please select the number of epochs: '))
 nbr_of_folds = int(input('Please select the number of folds: '))
 hyper_param1 = 100
 nbr_of_feat = int((np.square(nbr_of_regions) - nbr_of_regions) / 2)
 
-#data = np.random.normal(0.6, 0.3, (nbr_of_sub, nbr_of_regions, nbr_of_regions))
-#data = np.abs(data)
-
-
-dicom_folder = '../netNorm-PY/manifest/'
+dicom_folder = '/content/drive/My Drive/gGAN_project/data_output'
 
 data = prepare_data_from_dicom(dicom_folder, nbr_of_sub, nbr_of_regions)
 data = np.abs(data)  # Ensure all values are positive, might depend on your preprocessing
-independent_data = data[:20]
+independent_data = data[:nbr_of_sub_for_cbt]
 
-#independent_data = np.random.normal(0.6, 0.3, (nbr_of_sub_for_cbt, nbr_of_regions, nbr_of_regions))
-#independent_data = np.abs(independent_data)
-CBT = netNorm(independent_data, 20, nbr_of_regions)
+CBT = netNorm(independent_data, nbr_of_sub_for_cbt, nbr_of_regions)
 gGAN(data, nbr_of_regions, nbr_of_epochs, nbr_of_folds, hyper_param1, CBT)

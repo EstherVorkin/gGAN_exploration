@@ -6,7 +6,7 @@ Submission by:
   - Esther  Vorkin
   - Anushka Deshpande
 
-In this project, we are taking the gGAN project from the following github: \n
+In this project, we are taking the gGAN project from the following github: <br>
   https://github.com/basiralab/gGAN?tab=readme-ov-file /n
 Also, using and changing the code of the netNORM, which is a sub code of the full code of gGAN. This is taken from the following github: /n 
   https://github.com/basiralab/netNorm-PY/tree/master /n

@@ -98,6 +98,16 @@ else:
     device = torch.device("cpu")
     print('running on CPU')
 
+def find_dicom_files(root_dir):
+    """Recursively find all DICOM files in the specified directory and its subdirectories."""
+    dicom_files = []
+    for subdir, dirs, files in os.walk(root_dir):
+        for file in files:
+            if file.endswith('.dcm'):
+                full_path = os.path.join(subdir, file)
+                dicom_files.append(full_path)
+    return dicom_files
+    
 def load_dicom_image(dicom_path):
     """Load DICOM image and return its pixel data as a numpy array."""
     dicom = pydicom.dcmread(dicom_path)
@@ -114,7 +124,7 @@ def image_to_graph(image, num_regions):
     return graph
 
 def prepare_data_from_dicom(dicom_folder, num_subjects, num_regions):
-    dicom_files = [os.path.join(dicom_folder, f) for f in os.listdir(dicom_folder) if f.endswith('.dcm')]
+    dicom_files = find_dicom_files(dicom_folder)
     dicom_files = dicom_files[:num_subjects]  # Limit the number of subjects to num_subjects
     data = np.array([image_to_graph(load_dicom_image(f), num_regions) for f in dicom_files])
     return data
@@ -287,7 +297,7 @@ def gGAN(data, nbr_of_regions, nbr_of_epochs, nbr_of_folds, hyper_param1, CBT):
         plt.xlabel('Epoch')
         plt.ylabel('Loss')
         #plt.savefig('./plot/loss' + str(epoch) + '.png')
-        output_directory = '/content/drive/My Drive/gGAN_project/dataset_1/'  
+        output_directory = '/content/drive/My Drive/gGAN_project/data_output_5_5_24/new/'  
         if not os.path.exists(output_directory):
             os.makedirs(output_directory)
         file_path = os.path.join(output_directory, 'ourData_loss' + str(epoch) + '.png')
@@ -465,7 +475,9 @@ nbr_of_folds = int(input('Please select the number of folds: '))
 hyper_param1 = 100
 nbr_of_feat = int((np.square(nbr_of_regions) - nbr_of_regions) / 2)
 
-dicom_folder = '/content/drive/My Drive/gGAN_project/data_output'
+#dicom_folder = '/content/drive/My Drive/gGAN_project/data_output'
+dicom_folder = '/content/netNorm-PY/Brain_dataset/'
+
 
 data = prepare_data_from_dicom(dicom_folder, nbr_of_sub, nbr_of_regions)
 data = np.abs(data)  # Ensure all values are positive, might depend on your preprocessing

@@ -91,6 +91,16 @@ def demo():
         return dataset
 
     #####################################################################################################
+    def find_dicom_files(root_dir):
+        """Recursively find all DICOM files in the specified directory and its subdirectories."""
+        dicom_files = []
+        for subdir, dirs, files in os.walk(root_dir):
+            for file in files:
+                if file.endswith('.dcm'):
+                    full_path = os.path.join(subdir, file)
+                    dicom_files.append(full_path)
+        return dicom_files
+
     def load_dicom_image(dicom_path):
         """Load DICOM image and return its pixel data as a numpy array."""
         dicom = pydicom.dcmread(dicom_path)
@@ -107,7 +117,7 @@ def demo():
         return graph
 
     def prepare_data_from_dicom(dicom_folder, num_subjects, num_regions):
-        dicom_files = [os.path.join(dicom_folder, f) for f in os.listdir(dicom_folder) if f.endswith('.dcm')]
+        dicom_files = find_dicom_files(dicom_folder)
         dicom_files = dicom_files[:num_subjects]  # Limit the number of subjects to num_subjects
         data = np.array([image_to_graph(load_dicom_image(f), num_regions) for f in dicom_files])
         return data
@@ -151,7 +161,7 @@ def demo():
                     plt.colorbar()
                 plt.imshow(predicted_sub)
                 #plt.savefig('./plot/img' + str(fold) + str(j) + str(i) + '.png')
-                output_directory = '/content/drive/My Drive/gGAN_project/dataset_1/'  
+                output_directory = '/content/drive/My Drive/gGAN_project/data_output_5_5_24/new/'  
                 if not os.path.exists(output_directory):
                     os.makedirs(output_directory)
                 file_path = os.path.join(output_directory, 'ourData_img' + str(fold) + str(j) + str(i) + '.png')
@@ -159,20 +169,15 @@ def demo():
 
     def plot_MAE(prediction, data_next, test, fold):
         MAE = np.zeros((9), dtype=np.double)
-        # Ensure we only use valid test indices that are within the bounds of data_next
         valid_indices = test[test < len(data_next)]
 
         for i in range(9):
-            print(f"Prediction slice shape for k={i+2}: {prediction[i, :len(valid_indices), :].shape}")
-            print(f"Data next valid shape: {data_next[valid_indices].shape}")
-
             if len(valid_indices) > 0:
-                # Only use the slice of predictions that matches the number of valid indices
                 prediction_valid = prediction[i, :len(valid_indices), :]
                 MAE_i = np.abs(prediction_valid - data_next[valid_indices])
                 MAE[i] = np.mean(MAE_i)
             else:
-                MAE[i] = np.nan  # Handle cases where no valid indices are available
+                MAE[i] = np.nan
 
         plt.clf()
         k = ['k=2', 'k=3', 'k=4', 'k=5', 'k=6', 'k=7', 'k=8', 'k=9', 'k=10']
@@ -183,15 +188,11 @@ def demo():
         max_val = np.nanmax(MAE) + 0.01 if not np.isnan(np.nanmax(MAE)) else 1
         ax.set(ylim=(min_val, max_val))
 
-
-
-        #plt.savefig('./plot/mae' + str(fold) + '.png')
-        output_directory = '/content/drive/My Drive/gGAN_project/dataset_1/'  
+        output_directory = '/content/drive/My Drive/gGAN_project/data_output_5_5_24/new/'
         if not os.path.exists(output_directory):
             os.makedirs(output_directory)
-        file_path = os.path.join(output_directory, 'orig_mae_img' + str(fold) + '.png')
+        file_path = os.path.join(output_directory, 'mae_updated' + str(fold) + '.png')
         plt.savefig(file_path, format='png', bbox_inches='tight', pad_inches=0)
-
 
     ######################################################################################################################################
 
@@ -252,13 +253,12 @@ def demo():
 
         def check(neighbors, i, j):
             for val in neighbors[i, :]:
-               if val == j:
+                if val == j:
                     return 1
             return 0
 
         def k_neighbors(x_to_x, k_num, nbr_of_trn, nbr_of_tst):
             neighbors = np.zeros((nbr_of_tst, k_num), dtype=int)
-            used = np.zeros((nbr_of_tst, nbr_of_trn), dtype=int)
             current = 0
             for i in range(nbr_of_tst):
                 for k in range(k_num):
@@ -278,32 +278,33 @@ def demo():
             return x
 
         def predict_samples(k_neighbors, t1, nbr_of_tst):
-            average = np.zeros((nbr_of_tst, 595), dtype=float)
+            nbr_of_feat = t1.shape[1]
+            average = np.zeros((nbr_of_tst, nbr_of_feat), dtype=float)
             for i in range(nbr_of_tst):
-                for j in range(len(k_neighbors[0])):
-                    average[i] = average[i] + t1[k_neighbors[i,j],:]
+                for j in range(len(k_neighbors[i])):
+                    if k_neighbors[i, j] < len(t1):
+                        average[i] += t1[k_neighbors[i, j], :]
 
-                average[i] = average[i] / len(k_neighbors[0])
+                average[i] /= len(k_neighbors[i])
 
             return average
 
         residual_of_tr_embeddings = subtract_cbt(embedded_train_data, embedded_CBT, len(embedded_train_data))
         residual_of_ts_embeddings = subtract_cbt(embedded_test_data, embedded_CBT, len(embedded_test_data))
 
-        dot_of_residuals = x_to_x(residual_of_tr_embeddings, residual_of_ts_embeddings, len(train), len(test))
+        dot_of_residuals = x_to_x(residual_of_tr_embeddings, residual_of_ts_embeddings, len(embedded_train_data), len(embedded_test_data))
+
+        predictions = []
         for k in range(2, 11):
-            k_neighbors_ = k_neighbors(dot_of_residuals, k, len(train), len(test))
+            k_neighbors_ = k_neighbors(dot_of_residuals, k, len(embedded_train_data), len(embedded_test_data))
+            prediction = predict_samples(k_neighbors_, data_next, len(embedded_test_data))
+            prediction = np.reshape(prediction, (1, len(embedded_test_data), nbr_of_feat))
+            predictions.append(prediction)
 
-            if k == 2:
-                prediction = predict_samples(k_neighbors_, data_next, len(embedded_test_data))
-                prediction = np.reshape(prediction, (1, len(embedded_test_data), nbr_of_feat))
-            else:
-                new_predict = predict_samples(k_neighbors_, data_next, len(embedded_test_data))
-                new_predict = np.reshape(new_predict, (1, len(embedded_test_data), nbr_of_feat))
-                prediction = np.append(prediction, new_predict, axis=0)
+        predictions = np.concatenate(predictions, axis=0)
+        return predictions
 
-        return prediction
-
+    
     nbr_of_sub = int(input('Please select the number of subjects: '))
     if nbr_of_sub < 5:
         print("You can not give less than 5 to the number of subjects. ")
@@ -315,7 +316,8 @@ def demo():
     hyper_param1 = 100
     nbr_of_feat = int((np.square(nbr_of_regions) - nbr_of_regions) / 2)
 
-    dicom_folder = '/content/drive/My Drive/gGAN_project/data_output'
+    #dicom_folder = '/content/drive/My Drive/gGAN_project/data_output'
+    dicom_folder = '/content/netNorm-PY/Brain_dataset/'
 
     data = prepare_data_from_dicom(dicom_folder, nbr_of_sub, nbr_of_regions)
     data = np.abs(data)  # Ensure all values are positive, might depend on your preprocessing

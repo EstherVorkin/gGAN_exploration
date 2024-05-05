@@ -31,6 +31,16 @@ import matplotlib.pyplot as plt
 import pydicom
 import os
 
+def find_dicom_files(root_dir):
+    """Recursively find all DICOM files in the specified directory and its subdirectories."""
+    dicom_files = []
+    for subdir, dirs, files in os.walk(root_dir):
+        for file in files:
+            if file.endswith('.dcm'):
+                full_path = os.path.join(subdir, file)
+                dicom_files.append(full_path)
+    return dicom_files
+    
 def load_dicom_image(dicom_path):
     """Load DICOM image and return its pixel data as a numpy array."""
     dicom = pydicom.dcmread(dicom_path)
@@ -215,8 +225,11 @@ def netNorm(v, nbr_of_sub, nbr_of_regions):
     fused_network = np.array(fused_network)
     return fused_network
 
-dicom_folder = '/content/drive/My Drive/gGAN_project/data_output'
-dicom_files = [os.path.join(dicom_folder, f) for f in os.listdir(dicom_folder) if f.endswith('.dcm')]
+#dicom_folder = '/content/drive/My Drive/gGAN_project/data_output'
+#dicom_files = [os.path.join(dicom_folder, f) for f in os.listdir(dicom_folder) if f.endswith('.dcm')]
+
+dicom_folder = '/content/netNorm-PY/Brain_dataset/'
+dicom_files = find_dicom_files(dicom_folder)
 
 nbr_of_sub = int(input('Please select the number of subjects: '))
 nbr_of_regions = int(input('Please select the number of regions: '))
@@ -228,7 +241,7 @@ v = np.zeros((nbr_of_views, nbr_of_sub, nbr_of_regions, nbr_of_regions))
 
 # Process each DICOM file
 for i, file_path in enumerate(dicom_files):
-    if i >= 100:
+    if i >= nbr_of_sub:
           break
     image = load_dicom_image(file_path)
     graph = image_to_graph(image, nbr_of_regions)
@@ -247,7 +260,7 @@ plt.colorbar()  # Optional: Add a colorbar to the plot
 plt.axis('off')  # Turn off axis labels and ticks
 
 # Save the figure before showing it
-output_directory = '/content/drive/My Drive/gGAN_project/data_output/'  # Ensure this directory exists or is created
+output_directory = '/content/drive/My Drive/gGAN_project/data_output_5_5_24/'  # Ensure this directory exists or is created
 if not os.path.exists(output_directory):
     os.makedirs(output_directory)
 file_path = os.path.join(output_directory, 'ourData_netNorm.png')

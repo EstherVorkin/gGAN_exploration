@@ -12,7 +12,7 @@ Also, using and changing the code of the netNORM, which is a sub code of the ful
   https://github.com/basiralab/netNorm-PY/tree/master <br>
 We want to try out different data sets with the given working code. <br>
 <br>
-The experimental data set we used is coming from a cancer data set - <br>
+The first experimental data set we used is coming from a cancer data set - <br>
 https://www.cancerimagingarchive.net/browse-collections/
 
 We took one of the data sets - it containts of 687 images of blood cancer type - Acute Myeloid Leukemia - it contains of 1 subject, from 5 studies and 15 series of images from different angles per each study.
@@ -20,6 +20,11 @@ We took one of the data sets - it containts of 687 images of blood cancer type -
 
 This collection contains de-identified radiology and histopathology imaging procured from subjects in NCI’s Cancer Moonshot Biobank - Acute Myeloid Leukemia Cancer (CMB-AML) cohort. Associated genomic, phenotypic and clinical data will be hosted by The Database of Genotypes and Phenotypes (dbGaP) and other NCI databases.  A summary of Cancer Moonshot Biobank imaging efforts can be found on the Cancer Moonshot Biobank Imaging page.
 <br>https://www.cancerimagingarchive.net/collection/cmb-aml/
+<br>
+The second data set is OSIC Pulmonary Fibrosis Dataset - Provides essential data for studying Pulmonary Fibrosis, including high-resolution images, clinical data, and longitudinal follow-ups. This dataset is vital for researching disease progression and treatment effects and is available on Kaggle at the following link: <br>https://www.kaggle.com/datasets/andradaolteanu/pulmonary-fibrosis-prep-data.
+<br>
+The third data set is RSNA Pneumonia Detection - Offered by the Radiological Society of North America (RSNA) for detecting pneumonia using chest X-rays. It includes a large number of annotated images and is useful for developing and benchmarking machine learning models. Accessible on Kaggle here: 
+<br>https://www.kaggle.com/c/rsna-pneumonia-detection-challenge/data
 <br>
 <br>
 <br>
